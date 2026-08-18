@@ -77,7 +77,7 @@ resource "aws_eip" "nat" {
 
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0](#cite-0).id
+  subnet_id     = aws_subnet.public[0]
 
   tags = {
     Name = "taskmanager-nat"
