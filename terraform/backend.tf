@@ -1,4 +1,4 @@
-﻿terraform {
+terraform {
   backend "s3" {
     bucket         = "terraform-state-145405817961-us-east-1"
     key            = "taskmanager/terraform.tfstate"
