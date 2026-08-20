@@ -30,3 +30,9 @@ variable "database_subnet_cidrs" {
   type        = list(string)
   default     = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
 }
+
+variable "app_port" {
+  description = "Port exposed by the application container inside ECS"
+  type        = number
+  default     = 8080
+}
