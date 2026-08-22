@@ -21,3 +21,9 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
