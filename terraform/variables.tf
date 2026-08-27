@@ -36,3 +36,31 @@ variable "app_port" {
   type        = number
   default     = 8080
 }
+
+# ------------------------------------------------------------------------------
+# ECS app setup - making our variables!
+# ------------------------------------------------------------------------------
+
+variable "ecs_task_cpu" {
+  description = "Fargate CPU units for each awesome API task"
+  type        = number
+  default     = 256
+}
+
+variable "ecs_task_memory" {
+  description = "Memory in MiB for each task (because memory rocks!)"
+  type        = number
+  default     = 512
+}
+
+variable "api_desired_count" {
+  description = "Number of API tasks to keep juggling"
+  type        = number
+  default     = 2
+}
+
+variable "container_image_tag" {
+  description = "The ECR image version our task will reference"
+  type        = string
+  default     = "0.1.0"
+}

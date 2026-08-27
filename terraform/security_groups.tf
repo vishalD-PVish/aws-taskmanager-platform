@@ -124,3 +124,14 @@ resource "aws_vpc_security_group_egress_rule" "ecs_to_rds_postgres" {
   to_port     = 5432
   ip_protocol = "tcp"
 }
+# ------------------------------------------------------------------------------
+# ECS outbound rule: HTTPS access for required AWS service APIs
+# ------------------------------------------------------------------------------
+resource "aws_vpc_security_group_egress_rule" "ecs_https_outbound" {
+  security_group_id = aws_security_group.ecs.id
+  cidr_ipv4         = "0.0.0.0/0"
+  description       = "Allow ECS tasks to reach required AWS APIs over HTTPS"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+}
