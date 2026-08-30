@@ -65,3 +65,34 @@ resource "aws_ecs_task_definition" "api" {
     Component = "ecs-task-definition"
   }
 }
+# ------------------------------------------------------------------------------
+# ECS Fargate service
+# ------------------------------------------------------------------------------
+resource "aws_ecs_service" "api" {
+  name                               = "taskmanager-api-service"
+  cluster                            = aws_ecs_cluster.main.id
+  task_definition                    = aws_ecs_task_definition.api.arn
+  desired_count                      = var.api_desired_count
+  launch_type                        = "FARGATE"
+  health_check_grace_period_seconds  = 60
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
+  network_configuration {
+    subnets          = aws_subnet.private[*].id
+    security_groups  = [aws_security_group.ecs.id]
+    assign_public_ip = false
+  }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.api.arn
+    container_name   = "api"
+    container_port   = var.app_port
+  }
+  propagate_tags = "SERVICE"
+  depends_on = [
+    aws_lb_listener.http
+  ]
+  tags = {
+    Name      = "taskmanager-api-service"
+    Component = "ecs-service"
+  }
+}
