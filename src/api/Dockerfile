@@ -18,7 +18,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy your main app code, making sure it’s owned by the 'app' user.
-COPY --chown=app:app main.py ./
+COPY --chown=app:app main.py database.py models.py schemas.py ./
 
 # Run your FastAPI app as the safer, non-root user.
 USER app
@@ -28,3 +28,4 @@ EXPOSE 8080
 
 # to start your FastAPI app with Uvicorn when the container launches.
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+
