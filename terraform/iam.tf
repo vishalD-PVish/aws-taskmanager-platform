@@ -52,9 +52,9 @@ resource "aws_iam_role" "ecs_task" {
 # ------------------------------------------------------------------------------
 # Giving our app just the right access: read the RDS credentials
 # ------------------------------------------------------------------------------
-resource "aws_iam_role_policy" "ecs_task_read_rds_secret" {
+resource "aws_iam_role_policy" "ecs_execution_read_rds_secret" {
   name = "taskmanager-read-rds-secret"
-  role = aws_iam_role.ecs_task.id
+  role = aws_iam_role.ecs_task_execution.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -68,3 +68,4 @@ resource "aws_iam_role_policy" "ecs_task_read_rds_secret" {
     ]
   })
 }
+
