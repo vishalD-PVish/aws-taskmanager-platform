@@ -121,3 +121,69 @@ resource "aws_ecs_service" "api" {
   }
 }
 
+# ------------------------------------------------------------------------------
+# One-off ECS Fargate task for Alembic database migrations
+# ------------------------------------------------------------------------------
+resource "aws_ecs_task_definition" "migration" {
+  family                   = "taskmanager-db-migration"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.ecs_task_cpu
+  memory                   = var.ecs_task_memory
+  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task.arn
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+  container_definitions = jsonencode([
+    {
+      name      = "migration"
+      image     = "${aws_ecr_repository.api.repository_url}:${var.container_image_tag}"
+      essential = true
+      command = [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ]
+      environment = [
+        {
+          name  = "DB_HOST"
+          value = aws_db_instance.main.address
+        },
+        {
+          name  = "DB_PORT"
+          value = "5432"
+        },
+        {
+          name  = "DB_NAME"
+          value = "taskmanager"
+        }
+      ]
+      secrets = [
+        {
+          name      = "DB_USERNAME"
+          valueFrom = "${aws_db_instance.main.master_user_secret[0].secret_arn}:username::"
+        },
+        {
+          name      = "DB_PASSWORD"
+          valueFrom = "${aws_db_instance.main.master_user_secret[0].secret_arn}:password::"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.api.name
+          "awslogs-region"        = "us-east-1"
+          "awslogs-stream-prefix" = "migration"
+        }
+      }
+    }
+  ])
+  tags = {
+    Name      = "taskmanager-db-migration"
+    Component = "database-migration"
+  }
+}
