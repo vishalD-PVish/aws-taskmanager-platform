@@ -22,3 +22,11 @@ output "migration_task_definition_arn" {
   description = "ARN of the one-off ECS task definition used to apply Alembic database migrations."
   value       = aws_ecs_task_definition.migration.arn
 }
+output "private_subnet_ids" {
+  description = "IDs of the private subnets used by ECS Fargate tasks."
+  value       = [for subnet in aws_subnet.private : subnet.id]
+}
+output "ecs_security_group_id" {
+  description = "ID of the security group attached to ECS Fargate tasks."
+  value       = aws_security_group.ecs.id
+}
