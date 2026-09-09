@@ -1,5 +1,6 @@
 ﻿from datetime import datetime
-from sqlalchemy import DateTime, String, Text, func
+from uuid import UUID, uuid4
+from sqlalchemy import DateTime, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 class Task(Base):
@@ -30,4 +31,35 @@ class Task(Base):
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
+    )
+class ExportJob(Base):
+    __tablename__ = "export_jobs"
+    id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid4,
+    )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="queued",
+        server_default="queued",
+        index=True,
+    )
+    requested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    s3_key: Mapped[str | None] = mapped_column(
+        String(512),
+        nullable=True,
+    )
+    error_message: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
     )
