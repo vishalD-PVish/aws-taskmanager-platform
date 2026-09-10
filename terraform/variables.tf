@@ -62,7 +62,7 @@ variable "api_desired_count" {
 variable "container_image_tag" {
   description = "The ECR image version our task will reference"
   type        = string
-  default     = "0.4.0"
+  default     = "0.5.0"
 }
 
 
