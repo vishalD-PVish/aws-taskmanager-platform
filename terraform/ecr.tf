@@ -38,3 +38,37 @@ resource "aws_ecr_lifecycle_policy" "api" {
     ]
   })
 }
+resource "aws_ecr_repository" "export_worker" {
+  name                 = "taskmanager-export-worker"
+  image_tag_mutability = "IMMUTABLE"
+  force_delete         = false
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+  tags = {
+    Name      = "taskmanager-export-worker"
+    Component = "lambda-container-registry"
+  }
+}
+resource "aws_ecr_lifecycle_policy" "export_worker" {
+  repository = aws_ecr_repository.export_worker.name
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only the 10 most recent tagged worker images"
+        selection = {
+          tagStatus   = "tagged"
+          countType   = "imageCountMoreThan"
+          countNumber = 10
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
