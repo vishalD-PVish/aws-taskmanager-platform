@@ -135,3 +135,64 @@ resource "aws_vpc_security_group_egress_rule" "ecs_https_outbound" {
   to_port           = 443
   ip_protocol       = "tcp"
 }
+# ------------------------------------------------------------------------------
+# Lambda export worker security group
+# ------------------------------------------------------------------------------
+
+resource "aws_security_group" "lambda_export_worker" {
+  name        = "taskmanager-lambda-export-worker-sg"
+  description = "Controls outbound traffic from the export worker Lambda function"
+  vpc_id      = aws_vpc.main.id
+
+  # Lambda does not accept inbound connections.
+  # Specific outbound rules are declared separately.
+  egress = []
+
+  tags = {
+    Name      = "taskmanager-lambda-export-worker-sg"
+    Tier      = "private"
+    Component = "async-export-worker"
+  }
+}
+
+# ------------------------------------------------------------------------------
+# RDS inbound rule: Lambda export worker can connect to PostgreSQL
+# ------------------------------------------------------------------------------
+
+resource "aws_vpc_security_group_ingress_rule" "rds_postgres_from_lambda_worker" {
+  security_group_id            = aws_security_group.rds.id
+  referenced_security_group_id = aws_security_group.lambda_export_worker.id
+
+  description = "Allow the Lambda export worker to connect to PostgreSQL"
+  from_port   = 5432
+  to_port     = 5432
+  ip_protocol = "tcp"
+}
+
+# ------------------------------------------------------------------------------
+# Lambda outbound rule: connect only to PostgreSQL
+# ------------------------------------------------------------------------------
+
+resource "aws_vpc_security_group_egress_rule" "lambda_worker_to_rds_postgres" {
+  security_group_id            = aws_security_group.lambda_export_worker.id
+  referenced_security_group_id = aws_security_group.rds.id
+
+  description = "Allow the Lambda export worker to connect to PostgreSQL"
+  from_port   = 5432
+  to_port     = 5432
+  ip_protocol = "tcp"
+}
+
+# ------------------------------------------------------------------------------
+# Lambda outbound rule: HTTPS access for AWS service APIs through NAT
+# ------------------------------------------------------------------------------
+
+resource "aws_vpc_security_group_egress_rule" "lambda_worker_https_outbound" {
+  security_group_id = aws_security_group.lambda_export_worker.id
+  cidr_ipv4         = "0.0.0.0/0"
+
+  description = "Allow the Lambda export worker to reach AWS APIs over HTTPS"
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
+}
