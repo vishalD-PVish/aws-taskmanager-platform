@@ -66,3 +66,8 @@ variable "container_image_tag" {
 }
 
 
+variable "worker_image_tag" {
+  description = "The specific ECR image tag used by our awesome Lambda export worker."
+  type        = string
+  default     = "0.2.0"
+}
