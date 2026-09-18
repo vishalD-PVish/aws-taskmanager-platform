@@ -18,7 +18,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy your main app code, making sure it’s owned by the 'app' user.
-COPY --chown=app:app main.py database.py models.py schemas.py alembic.ini ./
+COPY --chown=app:app main.py database.py models.py queueing.py schemas.py alembic.ini ./
 
 # Run your FastAPI app as the safer, non-root user.
 COPY --chown=app:app migrations ./migrations
