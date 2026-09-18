@@ -62,7 +62,16 @@ resource "aws_ecs_task_definition" "api" {
         {
           name  = "DB_NAME"
           value = "taskmanager"
+        },
+        {
+          name  = "EXPORT_QUEUE_URL"
+          value = aws_sqs_queue.export_jobs.url
+        },
+        {
+          name  = "AWS_DEFAULT_REGION"
+          value = "us-east-1"
         }
+
       ]
       secrets = [
         {

@@ -139,3 +139,19 @@ resource "aws_iam_role_policy" "lambda_export_worker" {
     ]
   })
 }
+resource "aws_iam_role_policy" "ecs_task_send_export_jobs" {
+  name = "taskmanager-send-export-jobs"
+  role = aws_iam_role.ecs_task.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage"
+        ]
+        Resource = aws_sqs_queue.export_jobs.arn
+      }
+    ]
+  })
+}
